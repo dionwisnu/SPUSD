@@ -7,10 +7,7 @@ package KeluarParkir;
 
 import Model.Kunjungan;
 import Model.Member;
-import Model.Petugas;
 import java.sql.SQLException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
@@ -21,30 +18,33 @@ public class TestKeluarParkirControl {
     public static void main(String[] args) {
         Member mb = new Member();
         Kunjungan kj = new Kunjungan();
-        Petugas pt = new Petugas();
-        kj.setNo_parkir("1705001");
-        kj.setPlat_nomor("AA4055JK");
-        pt.setId_petugas("K.1024");
-        kj.setId_petugas(pt);
-        mb.setId_member("125314055");
+        mb.setId_member("125314005");
         kj.setId_member(mb);
+
         try {
-//            KeluarParkirControl.getKoneksiKeluarParkir().cekDataMember(mb);
-            KeluarParkirControl.getKoneksiKeluarParkir().cekMemberMasuk(kj);
-//        System.out.println(kj.getId_petugas().getId_petugas());
-//        try {
-//            if (KeluarParkirControl.getKoneksiKeluarParkir().cekDataMember(mb)){
-//                MasukParkirControl.getKoneksiMasukParkir().tambahDataKunjunganMasuk(kj);
-//                System.out.println("Data Parkir bertambah");
-//            } else {
-//                System.out.println("Data Parkir gagal bertambah");
-//            }
-//
-//        } catch (SQLException ex) {
-//            System.out.println("Gagal = " + ex);
-//        }
+            if (KeluarParkirControl.getKoneksiKeluarParkir().cekDataMember(mb)) {
+                if (KeluarParkirControl.getKoneksiKeluarParkir().cekStatusKunjunganMember(mb)){
+                    KeluarParkirControl.getKoneksiKeluarParkir().tambahDataKunjunganKeluar(mb);
+                    KeluarParkirControl.getKoneksiKeluarParkir().kurangSaldoMember(mb);
+                    KeluarParkirControl.getKoneksiKeluarParkir().tampilDataMemberKeluar(kj);
+                    System.out.println("ID = " + kj.getId_member().getId_member());
+                    System.out.println("Nama = " + kj.getId_member().getNama_member());
+                    System.out.println("Sisa Saldo = " + kj.getId_member().getSaldo());
+                    System.out.println("No Parkir = " + kj.getNo_parkir());
+                    System.out.println("Tanggal Parkir = " + kj.getTanggal_parkir());
+                    System.out.println("Jam Masuk = " + kj.getJam_masuk());
+                    System.out.println("Jam Keluar = " + kj.getJam_keluar());
+                    System.out.println("Plat Nomor = " + kj.getPlat_nomor());
+                    System.out.println("Data Parkir terupdate");
+                } else {
+                    System.out.println("Member belum masuk parkir");
+                }
+            } else {
+                System.out.println("Member tidak terdaftar");
+            }
+
         } catch (SQLException ex) {
-            Logger.getLogger(TestKeluarParkirControl.class.getName()).log(Level.SEVERE, null, ex);
+            System.out.println("Gagal = " + ex);
         }
     }
 }

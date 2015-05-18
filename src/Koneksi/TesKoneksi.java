@@ -16,6 +16,7 @@ public class TesKoneksi {
     public static void main(String[] args) {
         Koneksi dh = new Koneksi();
         dh.getDBConnection();
-        dh.closeConnection();
+//        dh.closeConnection();
+        dh.commitConnection();
     }
 }

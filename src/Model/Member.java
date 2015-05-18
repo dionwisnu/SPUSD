@@ -8,7 +8,7 @@ public class Member {
     private String id_member;
     private String nama_member;
     private String alamat;
-    private int saldo;
+    private String saldo;
 
     public String getId_member() {
         return id_member;
@@ -34,11 +34,11 @@ public class Member {
         this.alamat = alamat;
     }
 
-    public int getSaldo() {
+    public String getSaldo() {
         return saldo;
     }
 
-    public void setSaldo(int saldo) {
+    public void setSaldo(String saldo) {
         this.saldo = saldo;
     }
     

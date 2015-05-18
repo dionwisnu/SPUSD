@@ -50,39 +50,36 @@ public class KeluarParkirControl {
         return status;
     }
 
-    public int cekMemberMasuk(Kunjungan member) throws SQLException {
+    public boolean cekStatusKunjunganMember(Member member) throws SQLException {
         Statement stmt = conn.createStatement();
-        String id_member = member.getId_member().getId_member();
-        int status = 0;
+        String id_member = member.getId_member();
+        boolean status = false;
         String sql = "select status from kunjungan where tanggal_parkir= TO_CHAR(SYSDATE, 'fmDD MON YYYY') AND id_member='" + id_member + "'";
-        ResultSet rset = stmt.executeQuery(sql);
-        //status masuk nilainya false
-        //status keluar nilainya true
-        while (rset.next()) {
-            if (rset.getString("status")=="masuk") {
-                status = 1;
-            } else if (rset.getString("status")=="keluar") {
-                status = 0;
-            } else {
+        try {
+            ResultSet rset = stmt.executeQuery(sql);
+            while (rset.next()) {
+                if (rset.getString("status").equals("masuk")) {
+                    status = true;
+                } else {
+                    status = false;
+                }
             }
+            System.out.println("status : " + status);
+        } catch (SQLException x) {
+            System.out.println("Error = " + x.getMessage());
         }
         conn.commit();
         conn.close();
-        System.out.println("status : " + status);
         return status;
     }
 
-    public void tambahDataKunjunganKeluar(Kunjungan kunjungan) throws SQLException {
+    public void tambahDataKunjunganKeluar(Member member) throws SQLException {
         PreparedStatement pstmt = null;
         try {
-            String sql = "insert into kunjungan (no_parkir, plat_nomor, tanggal_parkir, jam_masuk, id_petugas, id_member, status)"
-                    + "VALUES (?, ?, TO_CHAR(SYSDATE, 'fmDD MON YYYY'), TO_CHAR(SYSDATE, 'fmHH24:MI:SS'), ?, ?, ?)";
+            String sql = "update kunjungan SET jam_keluar = TO_CHAR(SYSDATE, 'fmHH24:MI:SS'), status = 'keluar' "
+                    + "where tanggal_parkir= TO_CHAR(SYSDATE, 'fmDD MON YYYY') AND id_member=?";
             pstmt = conn.prepareStatement(sql);
-            pstmt.setString(1, kunjungan.getNo_parkir());
-            pstmt.setString(2, kunjungan.getPlat_nomor());
-            pstmt.setString(3, kunjungan.getId_petugas().getId_petugas());
-            pstmt.setString(4, kunjungan.getId_member().getId_member());
-            pstmt.setString(5, "masuk");
+            pstmt.setString(1, member.getId_member());
             pstmt.executeUpdate();
             conn.commit();
         } catch (SQLException exception) {
@@ -90,5 +87,48 @@ public class KeluarParkirControl {
             throw exception;
         }
         conn.close();
+    }
+    
+    public void kurangSaldoMember(Member member)throws SQLException{
+        PreparedStatement pstmt = null;
+        try {
+            String sql = "update member set saldo = (select (saldo-2000) from member where id_member=?) where id_member=?";
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1, member.getId_member());
+            pstmt.setString(2, member.getId_member());
+            pstmt.executeUpdate();
+            conn.commit();
+        } catch (SQLException exception) {
+            conn.rollback();
+            throw exception;
+        }
+        conn.close();
+    }
+    
+    public void tampilDataMemberKeluar(Kunjungan kunjungan) throws SQLException {
+        Statement stmt = conn.createStatement();
+        Member member = new Member();
+        String id_member = kunjungan.getId_member().getId_member();
+        String sql = "select m.id_member, m.nama_member, m.saldo, k.no_parkir, k.tanggal_parkir, k.jam_masuk, k.jam_keluar,k.plat_nomor "
+                + "from member m, kunjungan k "
+                + "where m.id_member = '"+id_member+"' AND k.id_member = '"+id_member+"'";
+        try {
+            ResultSet rset = stmt.executeQuery(sql);
+            while (rset.next()) {
+                member.setId_member(rset.getString("id_member"));
+                member.setNama_member(rset.getString("nama_member"));
+                member.setSaldo(rset.getString("saldo"));
+                kunjungan.setId_member(member);
+                kunjungan.setNo_parkir(rset.getString("no_parkir"));
+                kunjungan.setTanggal_parkir(rset.getString("tanggal_parkir"));
+                kunjungan.setJam_masuk(rset.getString("jam_masuk"));
+                kunjungan.setJam_keluar(rset.getString("jam_keluar"));
+                kunjungan.setPlat_nomor(rset.getString("plat_nomor"));
+            }
+        } catch (SQLException x) {
+            System.out.println("Error = " + x.getMessage());
+        }
+        conn.commit();
+        conn.close(); 
     }
 }

@@ -36,4 +36,15 @@ public class Koneksi {
             System.out.println("Tutup Koneksi Gagal");
         }
     }
+    
+    public void commitConnection() {
+        Connection conn = null;
+        try {
+            conn.commit();
+            System.out.println("Commit Berhasil");
+        } catch (SQLException ex) {
+            System.out.println("Commit Gagal");
+        }
+    }
+    
 }

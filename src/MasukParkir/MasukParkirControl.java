@@ -50,7 +50,7 @@ public class MasukParkirControl {
         System.out.println("status : " + status);
         return status;
     }
-    
+
     public boolean cekStatusKunjunganMember(Member member) throws SQLException {
         Statement stmt = conn.createStatement();
         String id_member = member.getId_member();
@@ -74,10 +74,51 @@ public class MasukParkirControl {
         return status;
     }
 
-    public String getNoParkir() throws SQLException {
+    public boolean getLastNoParkir() throws SQLException {
         Statement stmt = conn.createStatement();
-        String no_baru ="";
-        String sql = "select concat(TO_CHAR(SYSDATE,'DDMM'),(to_char(substr(max(no_parkir),5,8)+1,'009'))) as no_parkir from kunjungan";
+        boolean status = false;
+        String sql = "select substr(max(no_parkir),8,10) as last_num "
+                + "from kunjungan "
+                + "where tanggal_parkir = TO_CHAR(SYSDATE, 'fmDD MON YYYY')";
+        try {
+            ResultSet rset = stmt.executeQuery(sql);
+            while (rset.next()) {
+                if (rset.getString("last_num").equals("")) {
+                    status = false;
+                } else {
+                    status = true;
+                }
+            }
+            System.out.println("status : " + status);
+        } catch (SQLException x) {
+            System.out.println("Error = " + x.getMessage());
+        }
+        conn.commit();
+        conn.close();
+        return status;
+    }
+
+    public String getNewNoParkir() throws SQLException {
+        Statement stmt = conn.createStatement();
+        String no_baru = "";
+        String sql = "select concat(TO_CHAR(SYSDATE,'DDMMYY'),(to_char(001,'009'))) as no_parkir from dual";
+        try {
+            ResultSet rset = stmt.executeQuery(sql);
+            while (rset.next()) {
+                no_baru = rset.getString("no_parkir");
+            }
+        } catch (SQLException x) {
+            System.out.println("Error = " + x.getMessage());
+        }
+        conn.commit();
+        conn.close();
+        return no_baru;
+    }
+
+    public String getNextNoParkir() throws SQLException {
+        Statement stmt = conn.createStatement();
+        String no_baru = "";
+        String sql = "select concat(TO_CHAR(SYSDATE,'DDMMYY'),(to_char(substr(max(no_parkir),8,10)+1,'009'))) as no_parkir from kunjungan";
         try {
             ResultSet rset = stmt.executeQuery(sql);
             while (rset.next()) {
@@ -93,7 +134,18 @@ public class MasukParkirControl {
 
     public void tambahDataKunjunganMasuk(Kunjungan kunjungan) throws SQLException {
         PreparedStatement pstmt = null;
-        String no_parkir = getKoneksiMasukParkir().getNoParkir();
+        String no_parkir = null;
+//        if (MasukParkirControl.getKoneksiMasukParkir().getLastNoParkir()) {
+//            no_parkir = getKoneksiMasukParkir().getNextNoParkir();
+//        } else if (!MasukParkirControl.getKoneksiMasukParkir().getLastNoParkir()) {
+//           no_parkir = getKoneksiMasukParkir().getNewNoParkir();
+//        }
+        try{
+            MasukParkirControl.getKoneksiMasukParkir().getLastNoParkir();
+            no_parkir = getKoneksiMasukParkir().getNextNoParkir();
+        }catch(NullPointerException ne){
+            no_parkir = MasukParkirControl.getKoneksiMasukParkir().getNewNoParkir();
+        }
         try {
             String sql = "insert into kunjungan (no_parkir, plat_nomor, tanggal_parkir, jam_masuk, id_petugas, id_member, status)"
                     + "VALUES (?, ?, TO_CHAR(SYSDATE, 'fmDD MON YYYY'), TO_CHAR(SYSDATE, 'fmHH24:MI:SS'), ?, ?, ?)";
@@ -118,7 +170,7 @@ public class MasukParkirControl {
         String id_member = kunjungan.getId_member().getId_member();
         String sql = "select m.id_member, m.nama_member, m.saldo, k.no_parkir, k.tanggal_parkir, k.jam_masuk, k.plat_nomor "
                 + "from member m, kunjungan k "
-                + "where k.tanggal_parkir= TO_CHAR(SYSDATE, 'fmDD MON YYYY'), m.id_member = '" + id_member + "' AND k.id_member = '" + id_member + "'";
+                + "where k.tanggal_parkir= TO_CHAR(SYSDATE, 'fmDD MON YYYY') AND m.id_member = '" + id_member + "' AND k.id_member = '" + id_member + "'";
         try {
             ResultSet rset = stmt.executeQuery(sql);
             while (rset.next()) {

@@ -23,10 +23,10 @@ public class TestMasukParkirControl {
         Member mb = new Member();
         Kunjungan kj = new Kunjungan();
         Petugas pt = new Petugas();
-        kj.setPlat_nomor("AB402JK");
+        kj.setPlat_nomor("AB4369JK");
         pt.setId_petugas("K.1024");
         kj.setId_petugas(pt);
-        mb.setId_member("125314005");
+        mb.setId_member("125314001");
         kj.setId_member(mb);
 
         try {
@@ -48,14 +48,22 @@ public class TestMasukParkirControl {
             } else {
                 System.out.println("Data Parkir gagal bertambah");
             }
+//            if(MasukParkirControl.getKoneksiMasukParkir().getLastNoParkir()){
+//                System.out.println("nomor parkir ada");
+//            }else{
+//                System.out.println("nomor parkir tidak ada");
+//            }
+//            MasukParkirControl.getKoneksiMasukParkir().getLastNoParkir();
         } catch (SQLException ex) {
             System.out.println("Gagal = " + ex);
+        } catch (NullPointerException ex) {
+//            System.out.println("Tanggal tidak ada");
+//            System.out.println("Tanggal parkir baru : ");
+//            try {
+//                System.out.print(MasukParkirControl.getKoneksiMasukParkir().getNewNoParkir());
+//            } catch (SQLException ex1) {
+//                Logger.getLogger(TestMasukParkirControl.class.getName()).log(Level.SEVERE, null, ex1);
+//            }
         }
-//         try {
-//             System.out.println(MasukParkirControl.getKoneksiMasukParkir().getNoParkir());
-//             System.out.println("Berhasil");
-//        } catch (SQLException ex) {
-//             System.out.println("Gagal = "+ex.getMessage());
-//        }
     }
 }

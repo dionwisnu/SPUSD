@@ -18,12 +18,13 @@ public class TestKeluarParkirControl {
     public static void main(String[] args) {
         Member mb = new Member();
         Kunjungan kj = new Kunjungan();
-        mb.setId_member("125314005");
+        mb.setId_member("125314001");
+        kj.setPlat_nomor("AB4369JK");
         kj.setId_member(mb);
 
         try {
             if (KeluarParkirControl.getKoneksiKeluarParkir().cekDataMember(mb)) {
-                if (KeluarParkirControl.getKoneksiKeluarParkir().cekStatusKunjunganMember(mb)){
+                if (KeluarParkirControl.getKoneksiKeluarParkir().cekStatusKunjunganMember(kj)){
                     KeluarParkirControl.getKoneksiKeluarParkir().tambahDataKunjunganKeluar(mb);
                     KeluarParkirControl.getKoneksiKeluarParkir().kurangSaldoMember(mb);
                     KeluarParkirControl.getKoneksiKeluarParkir().tampilDataMemberKeluar(kj);
@@ -38,6 +39,7 @@ public class TestKeluarParkirControl {
                     System.out.println("Data Parkir terupdate");
                 } else {
                     System.out.println("Member belum masuk parkir");
+                    
                 }
             } else {
                 System.out.println("Member tidak terdaftar");

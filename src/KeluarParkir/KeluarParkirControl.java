@@ -50,11 +50,12 @@ public class KeluarParkirControl {
         return status;
     }
 
-    public boolean cekStatusKunjunganMember(Member member) throws SQLException {
+    public boolean cekStatusKunjunganMember(Kunjungan kunjungan) throws SQLException {
         Statement stmt = conn.createStatement();
-        String id_member = member.getId_member();
+        String id_member = kunjungan.getId_member().getId_member();
+        String plat_no = kunjungan.getPlat_nomor();
         boolean status = false;
-        String sql = "select status from kunjungan where tanggal_parkir= TO_CHAR(SYSDATE, 'fmDD MON YYYY') AND id_member='" + id_member + "'";
+        String sql = "select status from kunjungan where plat_nomor='"+plat_no+"' AND tanggal_parkir= TO_CHAR(SYSDATE, 'fmDD MON YYYY') AND id_member='" + id_member + "'";
         try {
             ResultSet rset = stmt.executeQuery(sql);
             while (rset.next()) {
@@ -111,7 +112,7 @@ public class KeluarParkirControl {
         String id_member = kunjungan.getId_member().getId_member();
         String sql = "select m.id_member, m.nama_member, m.saldo, k.no_parkir, k.tanggal_parkir, k.jam_masuk, k.jam_keluar,k.plat_nomor "
                 + "from member m, kunjungan k "
-                + "where m.id_member = '"+id_member+"' AND k.id_member = '"+id_member+"'";
+                + "where k.tanggal_parkir= TO_CHAR(SYSDATE, 'fmDD MON YYYY') AND m.id_member = '"+id_member+"' AND k.id_member = '"+id_member+"'";
         try {
             ResultSet rset = stmt.executeQuery(sql);
             while (rset.next()) {
